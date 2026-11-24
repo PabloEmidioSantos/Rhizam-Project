@@ -35,7 +35,7 @@ export default function AdminLayout() {
         <button className="sidebar-signout" type="button" onClick={handleSignOut}>Sair da conta</button>
       </aside>
       <div className="admin-content">
-        <header className="admin-topbar"><span>MONOLITH · Painel administrativo</span>{error && <span className="feedback feedback-error" role="status">{error}</span>}<span>{session?.user.email}</span></header>
+        <header className="admin-topbar"><span>RHIZAM · Painel administrativo</span>{error && <span className="feedback feedback-error" role="status">{error}</span>}<span>{session?.user.email}</span></header>
         <main className="admin-main"><Outlet /></main>
       </div>
     </div>

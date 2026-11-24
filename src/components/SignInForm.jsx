@@ -60,7 +60,7 @@ export default function SignInForm({ role }) {
       <label htmlFor="login-password">Senha</label>
       <input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
       <Feedback>{error}</Feedback>
-      <button className="gold-button" type="submit" disabled={submitting}>{submitting ? "Entrando…" : "Entrar"}</button>
+      <button className="primary-button" type="submit" disabled={submitting}>{submitting ? "Entrando…" : "Entrar"}</button>
     </form>
   );
 }

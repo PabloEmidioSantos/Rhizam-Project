@@ -5,7 +5,23 @@ create table public.admin_users (
   granted_at timestamptz not null default now(),
   granted_by uuid references auth.users (id) on delete set null
 );
-heck (char_length(btrim(name)) between 2 and 100),
+
+create table public.clients (
+  id uuid primary key default gen_random_uuid(),
+  auth_user_id uuid unique references auth.users (id) on delete set null,
+  name text not null check (char_length(btrim(name)) between 2 and 160),
+  email text not null check (char_length(btrim(email)) between 3 and 254),
+  company text check (company is null or char_length(company) <= 160),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index clients_email_lower_unique on public.clients (lower(email));
+create index clients_created_at_idx on public.clients (created_at desc);
+
+create table public.contact_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(btrim(name)) between 2 and 100),
   email text not null check (char_length(btrim(email)) between 3 and 254),
   company text check (company is null or char_length(company) <= 160),
   message text not null check (char_length(btrim(message)) between 10 and 5000),
@@ -15,7 +31,8 @@ heck (char_length(btrim(name)) between 2 and 100),
   updated_at timestamptz not null default now()
 );
 
-create index contact_requests_status_created_idx on public.contact_requests (status, created_at desc);
+create index contact_requests_status_created_idx
+  on public.contact_requests (status, created_at desc);
 
 create table public.projects (
   id uuid primary key default gen_random_uuid(),
@@ -32,25 +49,12 @@ create table public.projects (
   check (not is_portfolio or public_summary is not null)
 );
 
-create index projects_client_created_idx on public.projects (client_id, created_at desc);
-create index projects_portfolio_idx on public.projects (created_at desc)
-  where is_portfolio and status = 'c
-create table public.clients (
-  id uuid primary key default gen_random_uuid(),
-  auth_user_id uuid unique references auth.users (id) on delete set null,
-  name text not null check (char_length(btrim(name)) between 2 and 160),
-  email text not null check (char_length(btrim(email)) between 3 and 254),
-  company text check (company is null or char_length(company) <= 160),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+create index projects_client_created_idx
+  on public.projects (client_id, created_at desc);
 
-create unique index clients_email_lower_unique on public.clients (lower(email));
-create index clients_created_at_idx on public.clients (created_at desc);
-
-create table public.contact_requests (
-  id uuid primary key default gen_random_uuid(),
-  name text not null completed';
+create index projects_portfolio_idx
+  on public.projects (created_at desc)
+  where is_portfolio and status = 'completed';
 
 create table public.project_updates (
   id uuid primary key default gen_random_uuid(),
@@ -62,7 +66,8 @@ create table public.project_updates (
   updated_at timestamptz not null default now()
 );
 
-create index project_updates_project_created_idx on public.project_updates (project_id, created_at desc);
+create index project_updates_project_created_idx
+  on public.project_updates (project_id, created_at desc);
 
 create table public.contact_request_rate_limits (
   visitor_fingerprint text primary key check (visitor_fingerprint ~ '^[0-9a-f]{64}$'),
@@ -137,19 +142,22 @@ begin
   delete from public.contact_request_rate_limits
   where window_started_at < now() - interval '2 days';
 
-  insert into public.contact_request_rate_limits as current_limit (visitor_fingerprint, window_started_at, request_count)
+  insert into public.contact_request_rate_limits as current_limit
+    (visitor_fingerprint, window_started_at, request_count)
   values (p_visitor_fingerprint, now(), 1)
   on conflict (visitor_fingerprint) do update
   set window_started_at = case
-        when now() - current_limit.window_started_at >= make_interval(secs => p_window_seconds)
-          then now()
-        else current_limit.window_started_at
-      end,
-      request_count = case
-        when now() - current_limit.window_started_at >= make_interval(secs => p_window_seconds)
-          then 1
-        else current_limit.request_count + 1
-      end
+    when now() - current_limit.window_started_at
+      >= make_interval(secs => p_window_seconds)
+    then now()
+    else current_limit.window_started_at
+  end,
+  request_count = case
+    when now() - current_limit.window_started_at
+      >= make_interval(secs => p_window_seconds)
+    then 1
+    else current_limit.request_count + 1
+  end
   returning request_count into current_count;
 
   return current_count <= p_max_requests;
@@ -166,9 +174,9 @@ alter table public.projects enable row level security;
 alter table public.project_updates enable row level security;
 alter table public.contact_request_rate_limits enable row level security;
 
-create policy "Admins can read administrator assignments"
+create policy "Users can read their own administrator assignment"
 on public.admin_users for select to authenticated
-using (public.is_admin() or user_id = (select auth.uid()));
+using (user_id = (select auth.uid()));
 
 create policy "Clients can read their own profile"
 on public.clients for select to authenticated
@@ -221,6 +229,7 @@ with check (public.is_admin());
 revoke all on public.admin_users, public.clients, public.contact_requests,
   public.projects, public.project_updates, public.contact_request_rate_limits
 from anon, authenticated;
+
 grant usage on schema public to anon, authenticated, service_role;
 grant select on public.admin_users to authenticated;
 grant select, insert, update, delete on public.clients, public.contact_requests,

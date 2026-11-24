@@ -16,7 +16,7 @@ function ClientProjects({ clientId }) {
   const updatesState = useAsyncData(() => getClientVisibleUpdates(projectIds), [projectIds.join(",")]);
   if (loading) return <LoadingState label="Carregando seus projetos…" />;
   if (error) return <Feedback>{error}</Feedback>;
-  if (!projects?.length) return <p className="empty-state">Ainda não há projetos vinculados a esta conta. Entre em contato com a MONOLITH para obter ajuda.</p>;
+  if (!projects?.length) return <p className="empty-state">Ainda não há projetos vinculados a esta conta. Entre em contato com a RHIZAM para obter ajuda.</p>;
 
   return (
     <div className="client-project-list">
@@ -48,7 +48,7 @@ export default function ClientPage() {
   }
   return (
     <main className="auth-page client-area">
-      <div className="client-area-header"><Link className="auth-brand" to="/">MONOLITH <span>· ÁREA DO CLIENTE</span></Link>{session && <button className="text-button" type="button" onClick={handleSignOut}>Sair</button>}</div>
+      <div className="client-area-header"><Link className="auth-brand" to="/">RHIZAM <span>· ÁREA DO CLIENTE</span></Link>{session && <button className="text-button" type="button" onClick={handleSignOut}>Sair</button>}</div>
       {supabaseConfigError ? <section className="auth-card"><h1>Área do cliente</h1><p className="feedback feedback-error">{supabaseConfigError}</p></section>
         : !session ? <section className="auth-card"><p className="eyebrow eyebrow-dark">Acesso individual</p><h1>Área do cliente</h1><p>Entre com a conta vinculada ao seu projeto.</p><SignInForm role="client" /></section>
           : loading ? <LoadingState label="Verificando permissões…" />

@@ -6,32 +6,32 @@ export default function SiteFooter() {
       <div className="site-footer-inner">
         <div className="footer-identity">
           <Brand footer />
-          <p>Construindo presença digital,<br />impulsionando negócios.</p>
+          <p>Operações digitais conectadas<br />para negócios em movimento.</p>
         </div>
         <div className="footer-link-column">
           <h2>Navegue</h2>
           <a href="#sobre">A empresa</a>
-          <a href="#servicos">Serviços</a>
-          <a href="#processo">Processo</a>
-          <a href="#compromissos">Compromissos</a>
+          <a href="#solucoes">Soluções</a>
+          <a href="#atuacao">Atuação</a>
+          <a href="#parceiros">Parceiros</a>
         </div>
         <div className="footer-link-column">
-          <h2>Serviços</h2>
-          <a href="#servicos">Desenvolvimento de sites</a>
-          <a href="#servicos">Estratégia digital</a>
-          <a href="#servicos">Design personalizado</a>
-          <a href="#servicos">Suporte contínuo</a>
+          <h2>Ambientes</h2>
+          <a href="#atuacao">Distribuição</a>
+          <a href="#atuacao">Indústria</a>
+          <a href="#atuacao">Importação</a>
+          <a href="#atuacao">Operação integrada</a>
         </div>
         <div className="footer-link-column">
           <h2>Institucional</h2>
-          <span>Carapicuíba · São Paulo</span>
-          <span>Desenvolvimento web</span>
-          <a href="#contato">Fale com a MONOLITH ↗</a>
+          <span>RHIZAM</span>
+          <span>Infraestrutura de operações digitais</span>
+          <a href="#contato">Fale com a RHIZAM ↗</a>
           <a href="/admin/login">Administração</a>
         </div>
       </div>
       <div className="site-footer-bottom">
-        <span>© MONOLITH — 2026. Todos os direitos reservados.</span>
+        <span>© RHIZAM — 2026. Todos os direitos reservados.</span>
         <a href="#topo">Voltar ao início ↑</a>
       </div>
     </footer>

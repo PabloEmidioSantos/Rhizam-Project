@@ -4,9 +4,9 @@ import Brand from "./Brand.jsx";
 
 const links = [
   ["#sobre", "A empresa"],
-  ["#servicos", "Serviços"],
-  ["#processo", "Processo"],
-  ["#compromissos", "Compromissos"],
+  ["#solucoes", "Soluções"],
+  ["#atuacao", "Atuação"],
+  ["#parceiros", "Parceiros"],
 ];
 
 export default function SiteHeader() {

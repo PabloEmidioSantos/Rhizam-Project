@@ -8,8 +8,8 @@ export default function AdminLoginPage() {
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <Link className="auth-brand" to="/">MONOLITH <span>· PAINEL</span></Link>
-        <p className="eyebrow eyebrow-dark">Acesso restrito</p>
+        <Link className="auth-brand" to="/">RHIZAM <span>· PAINEL</span></Link>
+        <p className="eyebrow eyebrow-blue">Acesso restrito</p>
         <h1>Administração</h1>
         <p>Entre com a conta administrativa previamente autorizada no Supabase.</p>
         {supabaseConfigError ? <p className="feedback feedback-error">{supabaseConfigError}</p> : <SignInForm role="admin" />}

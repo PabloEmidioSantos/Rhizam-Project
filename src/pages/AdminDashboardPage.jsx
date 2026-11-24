@@ -14,7 +14,7 @@ export default function AdminDashboardPage() {
   const { data, loading, error, reload } = useAsyncData(getAdminMetrics, []);
   return (
     <section>
-      <div className="admin-page-heading"><div><p className="admin-label">RESUMO</p><h1>Visão geral</h1><p>Indicadores do espaço administrativo MONOLITH.</p></div><button className="subtle-button" type="button" onClick={reload}>Atualizar</button></div>
+      <div className="admin-page-heading"><div><p className="admin-label">RESUMO</p><h1>Visão geral</h1><p>Indicadores do espaço administrativo RHIZAM.</p></div><button className="subtle-button" type="button" onClick={reload}>Atualizar</button></div>
       {loading && <LoadingState />}
       {error && <Feedback>{error}</Feedback>}
       {data && <div className="metric-grid"><article><span>Clientes</span><strong>{data.clients}</strong></article><article><span>Solicitações novas</span><strong>{data.requests}</strong></article><article><span>Projetos</span><strong>{data.projects}</strong></article></div>}

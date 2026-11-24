@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getAccessProfile } from "../services/authService.js";
 import { getErrorMessage } from "../lib/errors.js";
 import { supabase, supabaseConfigError } from "../lib/supabase.js";
@@ -9,23 +9,36 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(Boolean(supabase));
   const [error, setError] = useState(supabaseConfigError);
+  const profileRequest = useRef(0);
+  const profileCache = useRef(new Map());
 
   const loadProfile = useCallback(async (userId) => {
+    const requestId = ++profileRequest.current;
     if (!userId) {
       setProfile(null);
+      setLoading(false);
+      return;
+    }
+    if (profileCache.current.has(userId)) {
+      setProfile(profileCache.current.get(userId));
+      setError(null);
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
       const accessProfile = await getAccessProfile(userId);
-      setProfile({ ...accessProfile, userId });
+      if (requestId !== profileRequest.current) return;
+      const nextProfile = { ...accessProfile, userId };
+      profileCache.current.set(userId, nextProfile);
+      setProfile(nextProfile);
       setError(null);
     } catch (loadError) {
+      if (requestId !== profileRequest.current) return;
       setProfile({ role: null, userId });
       setError(getErrorMessage(loadError, "Não foi possível verificar as permissões da conta."));
     } finally {
-      setLoading(false);
+      if (requestId === profileRequest.current) setLoading(false);
     }
   }, []);
 
@@ -44,6 +57,12 @@ export function AuthProvider({ children }) {
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!active) return;
+      if (!nextSession) {
+        profileCache.current.clear();
+        ++profileRequest.current;
+        setProfile(null);
+        setLoading(false);
+      }
       setSession(nextSession);
       void loadProfile(nextSession?.user.id);
     });

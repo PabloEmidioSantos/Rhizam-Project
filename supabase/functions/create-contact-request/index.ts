@@ -21,9 +21,10 @@ function jsonResponse(status: number, body: Record<string, unknown>, origin: str
 }
 
 function getClientIp(request: Request) {
+  // Only trust provider-controlled headers. x-forwarded-for is client-controllable
+  // and must not be used to build abuse-control fingerprints.
   return request.headers.get("cf-connecting-ip")
     ?? request.headers.get("x-real-ip")
-    ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     ?? null;
 }
 

@@ -1,8 +1,9 @@
 export function validateContactRequest(input) {
-  const name = typeof input.name === "string" ? input.name.trim() : "";
-  const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
-  const company = typeof input.company === "string" ? input.company.trim() : "";
-  const message = typeof input.message === "string" ? input.message.trim() : "";
+  const values = input && typeof input === "object" ? input : {};
+  const name = typeof values.name === "string" ? values.name.trim() : "";
+  const email = typeof values.email === "string" ? values.email.trim().toLowerCase() : "";
+  const company = typeof values.company === "string" ? values.company.trim() : "";
+  const message = typeof values.message === "string" ? values.message.trim() : "";
 
   if (name.length < 2 || name.length > 100) return { valid: false, error: "Informe um nome com até 100 caracteres." };
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { valid: false, error: "Informe um e-mail válido." };

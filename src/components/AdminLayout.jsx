@@ -18,9 +18,9 @@ export default function AdminLayout() {
   async function handleSignOut() {
     try {
       await signOut();
-      navigate("/admin", { replace: true });
-    } catch (error) {
-      setError(error.message);
+      navigate("/admin/login", { replace: true });
+    } catch {
+      setError("Não foi possível encerrar a sessão. Tente novamente.");
     }
   }
 

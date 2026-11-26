@@ -12,6 +12,10 @@ Aplicação institucional responsiva em React, Vite e Supabase.
 - ESLint
 - Testes nativos com `node:test`
 
+## Material de referência
+
+As orientações fornecidas para imagens e carrossel estão em [docs/Instrução.docx](./docs/Instru%C3%A7%C3%A3o.docx). Esse arquivo é documentação interna e não é publicado como asset do site.
+
 ## Desenvolvimento
 
 ```powershell

@@ -6,13 +6,13 @@ export default function SiteFooter() {
       <div className="site-footer-inner">
         <div className="footer-identity">
           <Brand footer />
-          <p>Operações digitais conectadas<br />para negócios em movimento.</p>
+          <p>Engenharia comercial e digital<br />para operações B2B.</p>
         </div>
         <div className="footer-link-column">
           <h2>Navegue</h2>
-          <a href="#sobre">A empresa</a>
-          <a href="#solucoes">Soluções</a>
-          <a href="#atuacao">Atuação</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#solucoes">Serviços</a>
+          <a href="#atuacao">Para quem é</a>
           <a href="#parceiros">Parceiros</a>
         </div>
         <div className="footer-link-column">
@@ -25,8 +25,9 @@ export default function SiteFooter() {
         <div className="footer-link-column">
           <h2>Institucional</h2>
           <span>RHIZAM</span>
-          <span>Infraestrutura de operações digitais</span>
-          <a href="#contato">Fale com a RHIZAM ↗</a>
+          <span>Engenharia comercial e digital B2B</span>
+          <a href="#contato">Agendar reunião ↗</a>
+          <a href="/cliente">Área do cliente</a>
           <a href="/admin/login">Administração</a>
         </div>
       </div>

@@ -1,29 +1,52 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { getVisiblePartners, partners } from "../lib/partnerCarousel.js";
 
-const partners = [
-  { name: "Agile", src: "/imgs/1%20Agile.avif" },
-  { name: "VTEX", src: "/imgs/3%20vtex.png" },
-  { name: "Tray", src: "/imgs/4%20Tray.png" },
-  { name: "Meta Ads", src: "/imgs/5%20Meta%20Ads.png" },
-  { name: "Google Ads", src: "/imgs/6%20Googles%20Ads.webp" },
-  { name: "Salesforce", src: "/imgs/7%20Sales%20Force.webp" },
-  { name: "RD Station", src: "/imgs/8%20Rd%20Station.svg" },
-  { name: "Braveo", src: "/imgs/9%20braveo.png" },
-];
+const rotationInterval = 4500;
+
+function getVisibleCount() {
+  if (window.matchMedia("(max-width: 380px)").matches) return 1;
+  if (window.matchMedia("(max-width: 767px)").matches) return 2;
+  if (window.matchMedia("(max-width: 1023px)").matches) return 3;
+  return 4;
+}
 
 export default function PartnerCarousel() {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const trackRef = useRef(null);
-  const visibleCount = 4;
+  const [visibleCount, setVisibleCount] = useState(getVisibleCount);
+  const [reducedMotion, setReducedMotion] = useState(() => (
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ));
+  const [pointerOver, setPointerOver] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const rotationPaused = reducedMotion || pointerOver || focusWithin || userPaused;
 
   useEffect(() => {
-    if (paused) return undefined;
+    function updateVisibleCount() {
+      setVisibleCount(getVisibleCount());
+    }
+
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, []);
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = (event) => setReducedMotion(event.matches);
+
+    setReducedMotion(preference.matches);
+    preference.addEventListener("change", updatePreference);
+    return () => preference.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    if (rotationPaused) return undefined;
+
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % partners.length);
-    }, 4500);
+    }, rotationInterval);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, [rotationPaused]);
 
   function move(direction) {
     setIndex((current) => (current + direction + partners.length) % partners.length);
@@ -33,44 +56,65 @@ export default function PartnerCarousel() {
     <div
       className="partner-carousel"
       role="region"
+      aria-roledescription="carrossel"
       aria-label="Tecnologias e parceiros"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
+      onPointerEnter={() => setPointerOver(true)}
+      onPointerLeave={() => setPointerOver(false)}
+      onFocus={() => setFocusWithin(true)}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false);
       }}
     >
-      <div className="partner-carousel-track" ref={trackRef}>
-        {partners.map((partner, partnerIndex) => {
-          const offset = (partnerIndex - index + partners.length) % partners.length;
-          const active = offset < visibleCount;
-          return (
-            <div
-              className={`partner-slide${active ? " is-active" : ""}`}
-              key={partner.name}
-              aria-hidden={!active}
-            >
-              <img src={partner.src} alt={active ? partner.name : ""} loading="lazy" />
-            </div>
-          );
-        })}
+      <div
+        className="partner-carousel-track"
+        style={{ "--visible-count": visibleCount }}
+        aria-live="off"
+      >
+        {getVisiblePartners(index, visibleCount).map(({ partner, index: partnerIndex }, slotIndex) => (
+          <div
+            className="partner-slide"
+            key={slotIndex}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${partner.name}, ${partnerIndex + 1} de ${partners.length}`}
+          >
+            <img key={partner.name} src={partner.src} alt={partner.name} loading="lazy" />
+          </div>
+        ))}
       </div>
+
       <div className="partner-carousel-controls">
-        <button type="button" onClick={() => move(-1)} aria-label="Parceiros anteriores">←</button>
-        <div className="partner-carousel-dots" aria-label="Posição do carrossel">
-          {partners.map((partner, dotIndex) => (
+        <div className="partner-carousel-dots" role="group" aria-label="Selecionar parceiro inicial">
+          {partners.map((partner, partnerIndex) => (
             <button
               type="button"
               key={partner.name}
-              className={dotIndex === index ? "is-active" : ""}
+              className={partnerIndex === index ? "is-active" : ""}
               aria-label={`Mostrar parceiros a partir de ${partner.name}`}
-              aria-current={dotIndex === index ? "true" : undefined}
-              onClick={() => setIndex(dotIndex)}
+              aria-current={partnerIndex === index ? "true" : undefined}
+              onClick={() => setIndex(partnerIndex)}
             />
           ))}
         </div>
-        <button type="button" onClick={() => move(1)} aria-label="Próximos parceiros">→</button>
+
+        <div className="partner-carousel-actions">
+          <button type="button" onClick={() => move(-1)} aria-label="Parceiros anteriores">
+            <span aria-hidden="true">←</span>
+          </button>
+          {!reducedMotion && (
+            <button
+              type="button"
+              aria-label={userPaused ? "Retomar rotação automática" : "Pausar rotação automática"}
+              aria-pressed={userPaused}
+              onClick={() => setUserPaused((paused) => !paused)}
+            >
+              <span aria-hidden="true">{userPaused ? "▶" : "Ⅱ"}</span>
+            </button>
+          )}
+          <button type="button" onClick={() => move(1)} aria-label="Próximos parceiros">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
     </div>
   );

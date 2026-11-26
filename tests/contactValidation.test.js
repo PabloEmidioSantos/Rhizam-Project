@@ -26,3 +26,9 @@ test("rejects malformed or oversized contact data", () => {
   assert.equal(validateContactRequest({ name: "A".repeat(101), email: "a@example.com", message: "mensagem suficientemente longa" }).valid, false);
   assert.equal(validateContactRequest({ name: "Ana", email: "a@example.com", message: "x".repeat(5001) }).valid, false);
 });
+
+test("rejects missing and non-object input without throwing", () => {
+  assert.equal(validateContactRequest(null).valid, false);
+  assert.equal(validateContactRequest(undefined).valid, false);
+  assert.equal(validateContactRequest("not an object").valid, false);
+});

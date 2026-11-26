@@ -11,7 +11,7 @@ const quickLinks = [
 ];
 
 export default function AdminDashboardPage() {
-  const { data, loading, error, reload } = useAsyncData(getAdminMetrics, []);
+  const { data, loading, error, reload } = useAsyncData(getAdminMetrics);
   return (
     <section>
       <div className="admin-page-heading"><div><p className="admin-label">RESUMO</p><h1>Visão geral</h1><p>Indicadores do espaço administrativo RHIZAM.</p></div><button className="subtle-button" type="button" onClick={reload}>Atualizar</button></div>

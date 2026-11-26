@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { signIn, signOut } from "../services/authService.js";
-import { getErrorMessage } from "../lib/errors.js";
+import { getSignInErrorMessage } from "../lib/errors.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { Feedback } from "./Feedback.jsx";
 
@@ -10,7 +10,8 @@ export default function SignInForm({ role }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { profile, session, loading: authLoading } = useAuth();
+  const submittingRef = useRef(false);
+  const { profile, session, loading: authLoading, error: authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const destination = role === "client" ? "/cliente" : "/admin";
@@ -18,8 +19,8 @@ export default function SignInForm({ role }) {
   async function handleWrongAccountSignOut() {
     try {
       await signOut();
-    } catch (signOutError) {
-      setError(getErrorMessage(signOutError, "Não foi possível encerrar a sessão."));
+    } catch {
+      setError("Não foi possível encerrar a sessão. Tente novamente.");
     }
   }
 
@@ -28,6 +29,14 @@ export default function SignInForm({ role }) {
   }
   if (session && authLoading) {
     return <p className="feedback feedback-info" role="status">Verificando permissões da conta…</p>;
+  }
+  if (session && authError && !profile?.role) {
+    return (
+      <div>
+        <Feedback>{authError}</Feedback>
+        <button className="subtle-button" type="button" onClick={handleWrongAccountSignOut}>Encerrar sessão</button>
+      </div>
+    );
   }
   if (session && profile?.role !== role) {
     return (
@@ -41,14 +50,17 @@ export default function SignInForm({ role }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     setError("");
     try {
       await signIn(email.trim(), password);
       navigate(location.state?.from?.pathname || destination, { replace: true });
     } catch (signInError) {
-      setError(getErrorMessage(signInError, "Não foi possível iniciar a sessão. Verifique os dados e tente novamente."));
+      setError(getSignInErrorMessage(signInError));
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
